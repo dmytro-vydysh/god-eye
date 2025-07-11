@@ -1,0 +1,37 @@
+{
+  "name": "eye-on-props",
+  "version": "1.0.4",
+  "description": "Advanced non-intrusive property monitoring",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest",
+    "custom-test": "tsc && node lib/test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmytro-vydysh/god-eye.git"
+  },
+  "keywords": [
+    "watch",
+    "observer",
+    "object",
+    "properties",
+    "eventemitter",
+    "clock",
+    "polling",
+    "typescript",
+    "realtime"
+  ],
+  "author": "Dmytro Vydysh (info@dmytrovydysh.com)",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/dmytro-vydysh/god-eye/issues"
+  },
+  "homepage": "https://github.com/dmytro-vydysh/god-eye#readme",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3"
+  }
+}

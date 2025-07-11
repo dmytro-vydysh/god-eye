@@ -1,0 +1,5 @@
+node_modules
+test
+__tests__
+lib
+package-lock.json
