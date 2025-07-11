@@ -40,13 +40,13 @@ npm install god-eye
 import { EyeOnProps } from 'god-eye';
 
 const obj = { name: 'John', age: 30 };
-const EyeOnProps = new EyeOnProps();
+const eyeOnProps = new EyeOnProps();
 
 // Watch a single property and use clock mode
-EyeOnProps.watch(obj, 'name').clock(1000);
+eyeOnProps.watch(obj, 'name').clock(1000);
 
 // Event listener
-EyeOnProps.on('change', changes => console.log(changes));
+eyeOnProps.on('change', changes => console.log(changes));
 ```
 
 ---
@@ -60,8 +60,8 @@ EyeOnProps.on('change', changes => console.log(changes));
 Watch a single property:
 
 ```ts
-EyeOnProps.watch(obj, 'name');
-EyeOnProps.watch(obj, 'name', 'username');
+eyeOnProps.watch(obj, 'name');
+eyeOnProps.watch(obj, 'name', 'username');
 ```
 
 #### Method: `.watch(instance, [[prop, key?], ...])`
@@ -69,7 +69,7 @@ EyeOnProps.watch(obj, 'name', 'username');
 Watch multiple properties:
 
 ```ts
-EyeOnProps.watch(obj, [['name'], ['age', 'userAge']]);
+eyeOnProps.watch(obj, [['name'], ['age', 'userAge']]);
 ```
 
 ---
@@ -79,7 +79,7 @@ EyeOnProps.watch(obj, [['name'], ['age', 'userAge']]);
 Enable polling-based monitoring:
 
 ```ts
-EyeOnProps.watch(obj, 'name').clock(1000); // check every 1 second
+eyeOnProps.watch(obj, 'name').clock(1000); // check every 1 second
 ```
 
 * ❌ Throws if `.realTime()` was called before
@@ -91,7 +91,7 @@ EyeOnProps.watch(obj, 'name').clock(1000); // check every 1 second
 Enable real-time interception:
 
 ```ts
-EyeOnProps.watch(obj, 'name').realTime();
+eyeOnProps.watch(obj, 'name').realTime();
 obj.name = 'Jane'; // triggers immediately
 ```
 
@@ -105,7 +105,7 @@ obj.name = 'Jane'; // triggers immediately
 Emit all values on every change:
 
 ```ts
-EyeOnProps.all();
+eyeOnProps.all();
 ```
 
 Useful for syncing full UI states or logs.
@@ -117,7 +117,7 @@ Useful for syncing full UI states or logs.
 Emit only properties that changed:
 
 ```ts
-EyeOnProps.changedOnly();
+eyeOnProps.changedOnly();
 ```
 
 Optimized for minimal traffic/logging.
@@ -131,7 +131,7 @@ Optimized for minimal traffic/logging.
 Fired when a change is detected.
 
 ```ts
-EyeOnProps.on('change', (payload) => {
+eyeOnProps.on('change', (payload) => {
   console.log(payload);
 });
 ```
@@ -144,7 +144,7 @@ EyeOnProps.on('change', (payload) => {
 
 ```ts
 const user = { name: 'Alice' };
-EyeOnProps.watch(user, 'name').realTime();
+eyeOnProps.watch(user, 'name').realTime();
 user.name = 'Bob';
 ```
 
@@ -162,7 +162,7 @@ EyeOnProps
 
 ```ts
 const product = { price: 100 };
-EyeOnProps.watch(product, 'price', 'priceEUR').clock(2000);
+eyeOnProps.watch(product, 'price', 'priceEUR').clock(2000);
 ```
 
 ---
