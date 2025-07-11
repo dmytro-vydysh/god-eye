@@ -29,7 +29,7 @@ Built on top of Node.js `EventEmitter`, it supports flexible watch setups, chang
 ## Installation
 
 ```bash
-npm install god-eye
+npm install eye-on-props
 ```
 
 ---
@@ -37,7 +37,7 @@ npm install god-eye
 ## Usage
 
 ```ts
-import { EyeOnProps } from 'god-eye';
+import { EyeOnProps } from 'eye-on-props';
 
 const obj = { name: 'John', age: 30 };
 const eyeOnProps = new EyeOnProps();

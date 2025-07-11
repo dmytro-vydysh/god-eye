@@ -1,6 +1,6 @@
 {
   "name": "eye-on-props",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Advanced non-intrusive property monitoring",
   "main": "lib/index.js",
   "scripts": {
