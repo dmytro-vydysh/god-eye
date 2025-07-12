@@ -43,7 +43,7 @@ export type EyeOnPropsMode = 'all' | 'changed' | 'undefined';
 export type EyeOnPropsType = 'clock' | 'real-time' | 'undefined';
 
 /**
- * Defines the event emitter interface for EyeOnProps.
+ * Defines the event emitter interface for eyeOnProps.
  * This interface extends the EventEmitter with specific event types and payloads.
  */
 export interface IEyeOnPropsEventEmitter {
@@ -63,9 +63,10 @@ export interface IEyeOnPropsEventEmitter {
  * ```typescript
  * const EyeOnProps = new EyeOnProps();
  * const obj = { name: 'John', age: 30 };
+ * const obj2 = { name: 'Dmytro', age: 26 };
  * 
- * EyeOnProps.watch(obj, 'name').clock(1000);
- * EyeOnProps.on('change', (changes) => console.log(changes));
+ * eyeOnProps.watch(obj, 'name').clock(1000);
+ * eyeOnProps.on('change', (changes) => console.log(changes));
  * ```
  */
 export class EyeOnProps extends EventEmitter<IEyeOnPropsEventEmitter> {
@@ -115,13 +116,13 @@ export class EyeOnProps extends EventEmitter<IEyeOnPropsEventEmitter> {
    * @example
    * ```typescript
    * // Watch single property
-   * EyeOnProps.watch(obj, 'name');
+   * eyeOnProps.watch(obj, 'name');
    * 
    * // Watch single property with custom key
-   * EyeOnProps.watch(obj, 'name', 'userName');
+   * eyeOnProps.watch(obj, 'name', 'userName');
    * 
    * // Watch multiple properties
-   * EyeOnProps.watch(obj, [['name'], ['age', 'userAge']]);
+   * eyeOnProps.watch(obj, [['name'], ['age', 'userAge']]);
    * ```
    */
   public watch(
@@ -183,7 +184,7 @@ export class EyeOnProps extends EventEmitter<IEyeOnPropsEventEmitter> {
    * 
    * @example
    * ```typescript
-   * EyeOnProps.watch(obj, 'name').clock(1000); // Check every 1 second
+   * eyeOnProps.watch(obj, 'name').clock(1000); // Check every 1 second
    * ```
    */
   public clock(ms: number): this {
@@ -211,7 +212,7 @@ export class EyeOnProps extends EventEmitter<IEyeOnPropsEventEmitter> {
    * 
    * @example
    * ```typescript
-   * EyeOnProps.watch(obj, 'name').realTime();
+   * eyeOnProps.watch(obj, 'name').realTime();
    * obj.name = 'Jane'; // Change detected immediately
    * ```
    */
@@ -274,7 +275,7 @@ export class EyeOnProps extends EventEmitter<IEyeOnPropsEventEmitter> {
    * 
    * @example
    * ```typescript
-   * EyeOnProps.watch(obj, ['name', 'age']).all().clock(1000);
+   * eyeOnProps.watch(obj, ['name', 'age']).all().clock(1000);
    * // When 'name' changes, the event will include both 'name' and 'age' values
    * ```
    */
@@ -292,7 +293,7 @@ export class EyeOnProps extends EventEmitter<IEyeOnPropsEventEmitter> {
    * 
    * @example
    * ```typescript
-   * EyeOnProps.watch(obj, ['name', 'age']).changedOnly().clock(1000);
+   * eyeOnProps.watch(obj, ['name', 'age']).changedOnly().clock(1000);
    * // When 'name' changes, the event will only include 'name' and its new value
    * ```
    */
