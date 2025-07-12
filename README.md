@@ -1,28 +1,11 @@
 # EyeOnProps
 
-**Version:** 2.0.0
-**Author:** Dmytro Vydysh
-**License:** CC0-1.0 Universal (Public Domain)
+**EyeOnProps** is a lightweight and powerful JavaScript/TypeScript utility for monitoring property changes on any number of object instances. It supports both polling-based and real-time observation, and emits events when watched properties change.
 
----
-
-## Overview
-
-**EyeOnProps** is a lightweight but powerful JavaScript/TypeScript library for monitoring object properties.
-It can detect changes either via polling (interval-based) or by intercepting property setters in real time.
-
-Built on top of Node.js `EventEmitter`, it supports flexible watch setups, change detection modes, and clean event emissions.
-
----
-
-## Features
-
-* 🔍 Watch one or more properties on any object
-* 🕒 Polling mode (`clock`) to check for changes on intervals
-* ⚡ Real-time mode (`realTime`) to intercept property changes immediately
-* 🔄 Modes for emitting all values or only changed ones
-* 🧠 Typed and well-documented API
-* 🚫 Real-time overrides are irreversible (by design)
+* ⚡️ Supports multiple objects per watcher
+* 🕒 Choose between polling (`clock`) and setter override (`realTime`) modes
+* 🧠 Utilizes `WeakRef` and `FinalizationRegistry` to avoid memory leaks
+* 📢 Emits two event types: simple (`change`) and detailed (`change:full`)
 
 ---
 
@@ -36,153 +19,118 @@ npm install eye-on-props
 
 ## Usage
 
+### Basic Setup
+
 ```ts
 import { EyeOnProps } from 'eye-on-props';
 
-const obj = { name: 'John', age: 30 };
-const eyeOnProps = new EyeOnProps();
+const obj = { value: 1 };
+const watcher = new EyeOnProps();
 
-// Watch a single property and use clock mode
-eyeOnProps.watch(obj, 'name').clock(1000);
+watcher.watch(obj, 'value');
 
-// Event listener
-eyeOnProps.on('change', changes => console.log(changes));
+watcher.on('change', (data) => {
+  console.log('Changed:', data);
+});
+
+watcher.clock(1000); // Poll every second
 ```
 
 ---
 
-## API Reference
+## API
 
-### Class: `EyeOnProps`
+### `watch(instance, prop: string, key?: string)`
 
-#### Method: `.watch(instance, prop, key?)`
+Watch a single property. Optionally specify a custom key name.
 
-Watch a single property:
+### `watch(instance, props: ([string] | [string, string])[])`
 
-```ts
-eyeOnProps.watch(obj, 'name');
-eyeOnProps.watch(obj, 'name', 'username');
-```
+Watch multiple properties at once. Each item is either:
 
-#### Method: `.watch(instance, [[prop, key?], ...])`
+* `["prop"]` → uses same key as prop
+* `["prop", "customKey"]`
 
-Watch multiple properties:
+### `clock(ms: number)`
 
-```ts
-eyeOnProps.watch(obj, [['name'], ['age', 'userAge']]);
-```
+Start polling mode. Checks for changes at the given interval (in ms).
 
----
+> ❗ Cannot be used after `.realTime()`
 
-### Method: `.clock(ms)`
+### `realTime()`
 
-Enable polling-based monitoring:
+Switch to real-time mode. Overrides the property setters to trigger updates immediately.
 
-```ts
-eyeOnProps.watch(obj, 'name').clock(1000); // check every 1 second
-```
+> ⚠️ This is **intrusive** and **irreversible** per instance. Once a setter is modified, its original behavior **cannot** be restored.
 
-* ❌ Throws if `.realTime()` was called before
+### `all()`
 
----
+Emit **all** watched properties on every change (even if values didn't change).
 
-### Method: `.realTime()`
+### `changedOnly()` *(default)*
 
-Enable real-time interception:
+Emit only properties whose values have actually changed.
 
-```ts
-eyeOnProps.watch(obj, 'name').realTime();
-obj.name = 'Jane'; // triggers immediately
-```
+### `unwatch(instance)`
 
-* ⚠️ Intrusive — overrides property behavior permanently
-* Emits a Node.js warning (`process.emitWarning`)
-
----
-
-### Method: `.all()`
-
-Emit all values on every change:
-
-```ts
-eyeOnProps.all();
-```
-
-Useful for syncing full UI states or logs.
-
----
-
-### Method: `.changedOnly()` (default)
-
-Emit only properties that changed:
-
-```ts
-eyeOnProps.changedOnly();
-```
-
-Optimized for minimal traffic/logging.
+Stop watching all properties of the given instance.
 
 ---
 
 ## Events
 
-### Event: `'change'`
-
-Fired when a change is detected.
+### `change`
 
 ```ts
-eyeOnProps.on('change', (payload) => {
-  console.log(payload);
-});
+watcher.on('change', (payload: Record<string, any>) => { ... });
 ```
 
----
+Simple payload containing the latest values.
 
-## Examples
-
-### Watch single property, real-time
+### `change:full`
 
 ```ts
-const user = { name: 'Alice' };
-eyeOnProps.watch(user, 'name').realTime();
-user.name = 'Bob';
+watcher.on('change:full', (payload: Record<string, { new: any, old: any }>) => { ... });
 ```
 
-### Watch multiple properties, polling
-
-```ts
-const user = { name: 'John', age: 25 };
-EyeOnProps
-  .watch(user, [['name'], ['age']])
-  .all()
-  .clock(500);
-```
-
-### Watch property with custom key
-
-```ts
-const product = { price: 100 };
-eyeOnProps.watch(product, 'price', 'priceEUR').clock(2000);
-```
+Detailed payload containing both previous and current values.
 
 ---
 
 ## Notes
 
-* 🧼 Calling `.realTime()` permanently changes property behavior with `Object.defineProperty`
-* 🔁 `.clock()` uses a `setInterval` which must be cleared (automatically handled internally)
-* ⚠️ Do **not** mix `.clock()` and `.realTime()` on the same instance
+* You can use **a single EyeOnProps instance** to monitor **multiple object instances** simultaneously.
+* `WeakRef` is used to avoid holding strong references. Objects can be garbage collected naturally.
+* `FinalizationRegistry` automatically cleans up entries when objects are collected.
+
+---
+
+## Example with Multiple Objects
+
+```ts
+const user = { name: 'Alice' };
+const task = { status: 'open' };
+
+const watcher = new EyeOnProps()
+  .watch(user, [['name', 'username']])
+  .watch(task, [['status']])
+  .realTime()
+  .all();
+
+watcher.on('change', console.log);
+```
 
 ---
 
 ## License
 
-This project is licensed under **CC0 1.0 Universal (Public Domain Dedication)**.
-You are free to use, modify, distribute, and incorporate it however you like.
+**Public Domain** (CC0-1.0) – do whatever the hell you want.
 
 ---
 
-## Contact
+## Author
 
 **Dmytro Vydysh**
-📧 [info@dmytrovydysh.com](mailto:info@dmytrovydysh.com)
+Email: [info@dmytrovydysh.com](mailto:info@dmytrovydysh.com)
+
+---
