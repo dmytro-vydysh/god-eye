@@ -43,6 +43,15 @@ export type EyeOnPropsMode = 'all' | 'changed' | 'undefined';
 export type EyeOnPropsType = 'clock' | 'real-time' | 'undefined';
 
 /**
+ * Defines the event emitter interface for EyeOnProps.
+ * This interface extends the EventEmitter with specific event types and payloads.
+ */
+export interface IEyeOnPropsEventEmitter {
+  'change': [Record<string, any>];
+  'change:full': [Record<string, { new: any, old: any }>];
+}
+
+/**
  * EyeOnProps - A powerful object property watcher that extends EventEmitter.
  * 
  * This class provides two monitoring mechanisms:
@@ -59,7 +68,7 @@ export type EyeOnPropsType = 'clock' | 'real-time' | 'undefined';
  * EyeOnProps.on('change', (changes) => console.log(changes));
  * ```
  */
-export class EyeOnProps extends EventEmitter {
+export class EyeOnProps extends EventEmitter<IEyeOnPropsEventEmitter> {
   /** Array of watched property entries with their metadata and cached values */
   private entries: WatchedEntry[] = [];
   /** Current monitoring mode - determines what gets emitted on changes */
@@ -228,18 +237,25 @@ export class EyeOnProps extends EventEmitter {
           // Only trigger change detection if the value actually changed
           if (v !== value) {
             value = v;
-            e.lastValue = v;
 
             // Emit change event based on current mode
             if (this.mode !== 'undefined') {
+              const fullPayload = this.mode === 'all'
+                ? this.buildFullAllPayload()
+                : (v !== e.lastValue ? { [e.key]: { new: v, old: e.lastValue } } : {});
+
               const payload = this.mode === 'all'
                 ? this.buildAllPayload()
                 : { [e.key]: v };
 
-              if (Object.keys(payload).length > 0) {
+              if (Object.keys(payload).length > 0)
                 this.emit('change', payload);
-              }
+
+              if (Object.keys(fullPayload).length > 0)
+                this.emit('change:full', fullPayload);
             }
+
+            e.lastValue = v;
           }
         },
         configurable: true,
@@ -330,6 +346,29 @@ export class EyeOnProps extends EventEmitter {
     const payload: Record<string, any> = {};
     for (const e of this.entries) {
       payload[e.key] = e.instance[e.prop];
+    }
+    return payload;
+  }
+
+  /**
+   * Builds a full payload for 'all' mode change events.
+   * This method includes both the new values and the old values for each watched property.
+   * It is used to provide a comprehensive snapshot of the state of all watched properties.
+   * @param {Record<string, any>} - Object containing all watched properties with their new and old values
+   * @returns Record<string, any> - Object containing all watched properties with their new and old values
+   * @throws Error if called in a mode other than 'all' 
+   * @private
+   */
+  private buildFullAllPayload(): Record<string, any> {
+    if (this.mode !== 'all')
+      throw new Error("buildFullAllPayload() can only be called in 'all' mode.");
+
+    const payload: Record<string, any> = {};
+    for (const e of this.entries) {
+      payload[e.key] = {
+        new: e.instance[e.prop],
+        old: e.lastValue,
+      };
     }
     return payload;
   }
